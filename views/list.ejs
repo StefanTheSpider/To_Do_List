@@ -10,15 +10,25 @@
 </head>
 
 <body>
-  <h1>
-    <%= kindOfDay %>
-  </h1>
-  <h2 id="date"></h2>
-  <h3></h3>
-  <h2 id="time"></h2>
+  <% if (kindOfDay==='Sunday' || kindOfDay==='Sartuday' ) { %>
+    <h1 style="color: aquamarine;">
+      <%= kindOfDay %>
+    </h1>
+    <% } else { %>
+      <h1 style="color: tomato;">
+        <%= kindOfDay %>
+      </h1>
+      <% } %>
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-  <script src="script/script.js"></script>
+        <h1>
+          <%= kindOfDay %>
+        </h1>
+        <h2 id="date"></h2>
+        <h3></h3>
+        <h2 id="time"></h2>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+        <script src="script/script.js"></script>
 </body>
 
 </html>
