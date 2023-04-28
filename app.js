@@ -15,7 +15,7 @@ app.get('/', function(req, res) {
   let currentDay = { weekday: 'long' }
   let day = today.toLocaleDateString('de-DE', currentDay);
 
-  res.render('list', {kindOfDay: day});
+  res.render('list.ejs', {kindOfDay: day});
 });
 
 
