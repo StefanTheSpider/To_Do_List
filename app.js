@@ -18,4 +18,5 @@ app.get('/', function(req, res) {
   res.render('list', {kindOfDay: day});
 });
 
+
 app.listen(3000, () => console.log('Server is runing on port 3000'));
