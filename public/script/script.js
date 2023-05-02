@@ -5,7 +5,7 @@ let time = today.toLocaleTimeString('de-DE', timeOptions);
 let options = { year: 'numeric', month: 'long', day: 'numeric' };
 let timeOptions = { hour: 'numeric', minute: 'numeric', second: 'numeric' };
 
-/* function updateClock() { 
+function updateClock() { 
   let today = new Date();
   let date = today.toLocaleDateString('de-DE', options);
   let time = today.toLocaleTimeString('de-DE', timeOptions);
@@ -21,5 +21,5 @@ let timeOptions = { hour: 'numeric', minute: 'numeric', second: 'numeric' };
     };
 };
 
-setInterval(updateClock, 1000); */
+setInterval(updateClock, 1000);
 
