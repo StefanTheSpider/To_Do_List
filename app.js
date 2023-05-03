@@ -1,25 +1,23 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const getDate = require('./date');
+// Ruft das modul in der 'date.js' Datei auf
+const date = require(__dirname + '/date.js')
+
 const app = express();
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('public'))
 
-/* app.get('/', function(req, res) {
-  res.sendFile(__dirname + '/index.html')
-}); */
-
 app.get('/', function(req, res) {
-  let today = new Date();
-  let currentDay = { weekday: 'long', day: 'numeric', month: 'long' }
-  let day = today.toLocaleDateString('de-DE', currentDay);
-
+  // wir nuzen die Funktion aus der 'date.js' Datei
+  let day = date.getDate();
   res.render('list.ejs', {ListTitle: day, newListItems: items});
 });
 
-let workItems = [];
-let items = [];
+const workItems = [];
+const items = [];
 app.post('/', function(req, res) {
   let item = req.body.newItem;
   if (req.body.list === 'Work') {
