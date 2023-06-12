@@ -1,15 +1,16 @@
 <%- include('header') %>
   <div class="box">
-    <% for( let i=0; i < newListItems.length; i++ ) { %>
+    <% newListItems.forEach((item)=> { %>
       <div class="item">
         <input type="checkbox">
         <p>
-          <%= newListItems[i] %>
+          <%= item %>
         </p>
       </div>
-      <% } %>
+      <% }) %>
+
         <form class="form" action="/" method="post">
-          <input class="new-item" type="text" name="newItem" placeholder="New Item" autocomplete="off">
+          <input class="new-item" type="text" name="newItem" placeholder="add new Item" autocomplete="off">
           <button type="submit" name="list" value=<%=ListTitle %>>+</button>
         </form>
   </div>

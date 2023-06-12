@@ -1,19 +1,63 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 const getDate = require('./date');
 // Ruft das modul in der 'date.js' Datei auf
-const date = require(__dirname + '/date.js')
+const date = require(__dirname + '/date.js');
 
 const app = express();
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(express.static('public'))
+app.use(express.static('public'));
+
+mongoose.connect('mongodb://localhost:27017/todolistDB', {useNewUrlParser: true});
+
+const itemsSchema = new mongoose.Schema ({
+  name: String
+});
+
+const Item = mongoose.model('Item', itemsSchema, 'item');
+
+const coocking = new Item ({
+  neme: 'coocking'
+});
+const gaming = new Item ({
+  name: 'gaming'
+});
+const reading = new Item ({
+  name: 'reading'
+});
+
+const addedItems = [];
+
+async function itemsCall() {
+  try {
+    const items = await Item.find();
+    items.forEach((item) => {
+      addedItems.push(item.name);
+    })
+  } catch (error) {
+    console.log(error);
+  }
+};
+itemsCall()
+
+async function insert() {
+  try {
+    Item.insertMany([coocking, gaming, reading])
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+//insert()
+
 
 app.get('/', function(req, res) {
   // wir nuzen die Funktion aus der 'date.js' Datei
   let day = date.getDate();
-  res.render('list.ejs', {ListTitle: day, newListItems: items});
+  res.render('list.ejs', {ListTitle: day, newListItems: addedItems});
 });
 
 const workItems = [];
