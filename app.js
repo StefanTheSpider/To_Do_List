@@ -19,6 +19,56 @@ const itemsSchema = new mongoose.Schema ({
 
 const Item = mongoose.model('Item', itemsSchema, 'item');
 
+const addedItems = [];
+
+async function itemsCall() {
+  try {
+    const items = await Item.find();
+    items.forEach((item) => {
+      addedItems.push(item);
+    })
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+async function itemsDelete() {
+  try {
+    const items = await Item.findOneAndDelete();
+    items.forEach((item) => {
+      addedItems.push(item.name);
+    })
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+app.get('/', function(req, res) {
+  // wir nuzen die Funktion aus der 'date.js' Datei
+  let day = date.getDate();
+  // hier erzeugen wir die Variablen, die wir dann ins HTML der entsprechenden Datei injezieren
+  res.render('list.ejs', {ListTitle: day, newListItems: addedItems});
+});
+
+app.post('/', function(req, res) {
+  const itemName = req.body.newItem;
+
+  const item = new Item ({
+    name: itemName
+  })
+   item.save();
+   addedItems.push(item.name)
+   res.redirect('/');
+  })
+  itemsCall();
+  
+  app.post('/delete', (req, res) => {
+    const checkedItem = req.body.checkbox;
+    console.log(checkedItem);
+    //res.redirect('/');
+  });
+
+/*
 const coocking = new Item ({
   neme: 'coocking'
 });
@@ -28,21 +78,6 @@ const gaming = new Item ({
 const reading = new Item ({
   name: 'reading'
 });
-
-const addedItems = [];
-
-async function itemsCall() {
-  try {
-    const items = await Item.find();
-    items.forEach((item) => {
-      addedItems.push(item.name);
-    })
-  } catch (error) {
-    console.log(error);
-  }
-};
-itemsCall()
-
 async function insert() {
   try {
     Item.insertMany([coocking, gaming, reading])
@@ -51,15 +86,11 @@ async function insert() {
   }
 };
 
-//insert()
+insert()
+*/
 
 
-app.get('/', function(req, res) {
-  // wir nuzen die Funktion aus der 'date.js' Datei
-  let day = date.getDate();
-  res.render('list.ejs', {ListTitle: day, newListItems: addedItems});
-});
-
+/*
 const workItems = [];
 const items = [];
 app.post('/', function(req, res) {
@@ -72,9 +103,7 @@ app.post('/', function(req, res) {
     res.redirect('/');
   }
 });
+*/
 
-app.get('/work', function(req, res) {
-  res.render('list.ejs', {ListTitle: 'Work List', newListItems: workItems});
-});
 
 app.listen(3000, () => console.log('Server is runing on port 3000'));
