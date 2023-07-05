@@ -19,23 +19,15 @@ const Item = mongoose.model('Item', itemsSchema, 'item');
 
 //*! Hauptteil */  
 
-const addedItems = [];
-
-app.get('/', function(req, res) {
+app.get('/', async function(req, res) {
   let day = date.getDate();
-  res.render('list.ejs', {ListTitle: day, newListItems: addedItems});
-});
-
-async function itemsCall() {
   try {
     const items = await Item.find();
-    items.forEach((item) => {
-      addedItems.push(item);
-    })
-  } catch (error) {
-    console.log(error);
+    res.render('list.ejs', {ListTitle: day, newListItems: items});
+  } catch(err) {
+    console.log(err);
   }
-};
+});
 
 app.post('/', function(req, res) {
   const itemName = req.body.newItem;
@@ -43,10 +35,9 @@ app.post('/', function(req, res) {
     name: itemName
   })
    item.save();
-   addedItems.push(item)
    res.redirect('/');
   })
-  itemsCall();
+
   
   app.post("/delete", async function(req, res){
     try {
@@ -54,8 +45,9 @@ app.post('/', function(req, res) {
       console.log(checkedItemId);
       if(checkedItemId !== undefined){
         await Item.findByIdAndRemove(checkedItemId);
-        console.log(`Deleted ${checkedItemId} Successfully`);
-        res.redirect('/')
+       setTimeout(() => {
+        res.redirect('/');
+      }, 150);
       }
     } catch (err) {
       console.log(err.message);
