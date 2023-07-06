@@ -60,19 +60,44 @@ app.post('/', function(req, res) {
   })
 
   
-  app.post("/delete", async function(req, res){
-    try {
-      const checkedItemId = req.body.checkbox;
-      if(checkedItemId !== undefined){
-        await Item.findByIdAndRemove(checkedItemId);
+  app.post("/delete", async function(req, res) {
+    let day = date.getDate();
+    const listName = req.body.listName;
+    const checkedItemId = req.body.checkbox;
+  
+    if (listName === day) {
+      try {
+        if (checkedItemId !== undefined) {
+          await Item.findByIdAndRemove(checkedItemId);
           setTimeout(() => {
             res.redirect('/');
           }, 150);
+        }
+      } catch (err) {
+        console.log(err.message);
       }
-    } catch (err) {
-      console.log(err.message);
+    } else {
+      try {
+        const list = await Lists.findOne({ name: listName });
+        if (list) {
+          // Find the index of the item to be removed
+          const itemIndex = list.items.findIndex(item => item._id.toString() === checkedItemId);
+          if (itemIndex !== -1) {
+            // Remove the item from the array
+            list.items.splice(itemIndex, 1);
+            // Save the updated list
+            await list.save();
+          }
+          setTimeout(() => {
+            res.redirect('/' + listName);
+          }, 150);
+        }
+      } catch (err) {
+        console.log(err);
+      }
     }
   });
+  
 
 app.get('/:customName', async (req, res) => {
   const pramsName = req.params.customName 
