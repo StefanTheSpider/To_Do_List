@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const getDate = require('./date');
 const date = require(__dirname + '/date.js');
+const _ = require('lodash')
 const app = express();
 
 app.set('view engine', 'ejs');
@@ -74,7 +75,7 @@ app.post('/', function(req, res) {
           }, 150);
         }
       } catch (err) {
-        console.log(err.message);
+        console.log(err);
       }
     } else {
       try {
@@ -100,7 +101,7 @@ app.post('/', function(req, res) {
   
 
 app.get('/:customName', async (req, res) => {
-  const pramsName = req.params.customName 
+  const pramsName = _.capitalize(req.params.customName) 
   Lists.findOne({name: pramsName})
   .then (foundList => {
     if(!foundList) {
