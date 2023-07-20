@@ -3,123 +3,84 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const getDate = require('./date');
 const date = require(__dirname + '/date.js');
-const _ = require('lodash')
+const _ = require('lodash');
 const app = express();
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('public'));
+require("dotenv").config();
 
-mongoose.connect('mongodb://localhost:27017/todolistDB', {useNewUrlParser: true});
+//mongoose.connect('mongodb://localhost:27017/todolistDB', {useNewUrlParser: true});
 
-const itemsSchema = new mongoose.Schema ({
-  name: String
-});
+const { MongoClient } = require("mongodb");
+const uri = `mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@cluster0.pe8hbzv.mongodb.net/?retryWrites=true&w=majority`;
 
-const listsSchema = new mongoose.Schema({
-  name: String,
-  items: [itemsSchema] 
-})
+const client = new MongoClient(uri);
+client.connect();
 
-const Item = mongoose.model('Item', itemsSchema, 'item');
 
-const Lists = mongoose.model('Lists', listsSchema, 'lists');
 
-//*! Hauptteil */  
+
+
+  const dbName = "logbuch";
+  const collectionName = "item";
+
+  const database = client.db(dbName);
+  const collection = database.collection(collectionName);
+
+//*! Hauptteil */ 
+
 
 app.get('/', async function(req, res) {
   let day = date.getDate();
   try {
-    const items = await Item.find();
-    res.render('list.ejs', {ListTitle: day, newListItems: items});
-  } catch(err) {
+    const result = await collection.find({}).toArray();
+    console.log(result);
+    res.render('list.ejs', { ListTitle: day, newListItems: result });
+  } catch (err) {
     console.log(err);
+    res.status(500).send('Error occurred');
   }
 });
+
 
 app.post('/', function(req, res) {
   const itemName = req.body.newItem;
   let day = date.getDate();
-  const listName = req.body.list;
-  const item = new Item ({
+  const item = {
     name: itemName
-  });
-  if (listName === day) {
-    item.save();
-    res.redirect('/');
-  } else {
-    Lists.findOne({name: listName})
-    .then(find => {
-      find.items.push(item);
-      find.save();
-      res.redirect('/' + listName);
-    })
-    .catch(err => {
-      console.log(err);
-    });
-    } 
+  }
+    collection.insertOne(item)
+    console.log(itemName);
+    res.redirect('/')
   })
 
-  
-  app.post("/delete", async function(req, res) {
-    let day = date.getDate();
-    const listName = req.body.listName;
+// ... (your previous code)
+
+app.post("/delete", async function(req, res) {
+  try {
     const checkedItemId = req.body.checkbox;
-  
-    if (listName === day) {
-      try {
-        if (checkedItemId !== undefined) {
-          await Item.findByIdAndRemove(checkedItemId);
-          setTimeout(() => {
-            res.redirect('/');
-          }, 150);
-        }
-      } catch (err) {
-        console.log(err);
-      }
-    } else {
-      try {
-        const list = await Lists.findOne({ name: listName });
-        if (list) {
-          // Find the index of the item to be removed
-          const itemIndex = list.items.findIndex(item => item._id.toString() === checkedItemId);
-          if (itemIndex !== -1) {
-            // Remove the item from the array
-            list.items.splice(itemIndex, 1);
-            // Save the updated list
-            await list.save();
-          }
-          setTimeout(() => {
-            res.redirect('/' + listName);
-          }, 150);
-        }
-      } catch (err) {
-        console.log(err);
-      }
-    }
-  });
-  
 
-app.get('/:customName', async (req, res) => {
-  const pramsName = _.capitalize(req.params.customName) 
-  Lists.findOne({name: pramsName})
-  .then (foundList => {
-    if(!foundList) {
-      const list = new Lists ({
-        name: pramsName,
-        items: []
-      });
-      list.save();
-      res.redirect('/' + pramsName);
-    } else {
-      res.render('list', {ListTitle: foundList.name, newListItems: foundList.items});
-    }
-  })
-  .catch(err => {
+    // Use MongoDB's ObjectId to convert the ID string to an ObjectId
+    const { ObjectId } = require("mongodb");
+    const objectId = new ObjectId(checkedItemId);
+
+    // Delete the item by ID
+    const deleteResult = await collection.deleteOne({ _id: objectId });
+    
+    res.redirect("/");
+  } catch (err) {
     console.log(err);
-  });
+    res.status(500).send("Error occurred");
+  }
 });
 
+// ... (your previous code)
 
 
-app.listen(3000, () => console.log('Server is runing on port 3000'));
+
+
+
+client.close();
+app.listen(3500, () => console.log('Server is runing on port 3500'));
